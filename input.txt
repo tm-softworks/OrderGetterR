@@ -1,0 +1,434 @@
+#
+#
+[general]
+# 決まった期間を指定する場合は、startDate, endDate を指定して下さい。
+# 優先度は以下の順になります
+#
+# 優先度高                                    優先度低
+# thisMonth > prevMonth > period > startDate - endData
+
+# 期間(数字)
+# 0: 当日の00:00 - 現在日時
+# 1: 前日の00:00 - 現在日時
+# 6: 6日前の00:00 - 現在日時
+# n: n日前の00:00 - 現在日時
+period = 1
+
+# 今月
+# 1: 今月
+thisMonth =
+
+# 先月(1 or 0)
+# 1: 先月
+prevMonth =
+
+# 受注API １回の呼び出しで指定する期間の長さ(sec)
+# * 受注APIの上限を超過しないような長さを指定して下さい
+#
+# 例) period=1, duration=86400 を指定した場合、以下の２回呼び出しを実施します
+#     1. 前日の00:00 - 前日の23:59:59
+#     2. 当日の00:00 - 現在日時
+#
+# 3600:    １時間
+# 7200:    ２時間
+# 43200: １２時間
+# 86400:   １日
+duration = 7200
+
+
+#################################################
+##
+## 検索条件 開始
+##
+[getOrderRequestModel]
+
+# 注文情報取得フラグ(1 or 0)
+# 1: 受注番号のみ取得
+# 0: 受注情報を取得
+# 指定無し: 受注情報を取得
+isOrderNumberOnlyFlg = 
+
+# 受注番号(文字列) ※複数指定する場合は、カンマ区切り(例: xxxx-yyyyy-zzzzz,aaaaa-bbbbb-ccccc)
+orderNumber =
+
+[getOrderRequestModel.orderSearchModel]
+
+# 受注ステータス(文字列) ※複数指定する場合は、カンマ区切り(例: 新規受付,保留)
+status =
+
+# 期間検索種別(数字)
+# 1: 注文日
+# 2: 入金日
+# 3: 発送日
+dateType = 1
+
+# 期間FROM (yyyy/MM/dd HH:mm:ss   例: 2017/01/01 01:00:00)
+startDate = 
+
+# 期間TO (yyyy/MM/dd HH:mm:ss   例: 2017/01/10 23:59:59)
+endDate = 
+
+# 販売種別(数字) ※複数指定する場合は、カンマ区切り(例: 1,2)
+# 1: 通常購入
+# 2: オークション
+# 3: 共同購入
+# 4: 定期購入
+# 5: 頒布会
+# 6: 予約商品
+# 指定無し: 条件無し（すべて）
+orderType = 
+
+# 支払方法名(文字列)
+settlement =
+
+# 配送方法名(文字列)
+delivery = 
+
+# 商品名(文字列)
+itemName =
+
+# 商品番号(文字列)
+itemNumber =
+
+# ひとことメモ(文字列)
+comment =
+
+# 注文メールアドレス種別(数字) ※複数指定する場合は、カンマ区切り(例: 1,2)
+# 1: PC
+# 2: モバイル
+# 指定無し: 条件無し（すべて）
+mailAddressType =
+
+# 注文者メールアドレス(文字列)
+ordererMailAddress = 
+
+# 注文者名(文字列)
+ordererName = 
+
+# 注文者名（カナ）(文字列)
+ordererKana =
+
+# 送付先者名(文字列)
+senderName =
+
+# 注文者電話番号(文字列)
+ordererPhoneNumber =
+
+# 送付先電話番号(文字列)
+senderPhoneNumber =
+
+# ポイント利用(1 or 0)
+# 1: ポイント利用有り
+# 0: ポイント利用無し
+# 指定無し: 条件無し（すべて）
+pointUsed =
+
+# ポイント承認ステータス(数字) ※複数指定する場合は、カンマ区切り(例: 1,2)
+# -1: 承認失敗
+#  0: 未承認
+#  1: 承認済
+#  2: 承認中
+# 指定無し: 条件無し（すべて）
+pointStatus = 
+
+# 申込番号(文字列)
+reserveNumber = 
+
+# 楽天バンク決済ステータス(数字) ※複数指定する場合は、カンマ区切り(例: 1,2)
+# 1: 振替依頼待ち
+# 2: ユーザ未承認
+# 3: 残高確認待ち
+# 4: 残高確認中
+# 5: 入金締日待ち
+# 6: 入金完了
+# 7: 振替NG
+# 8: 強制完了
+# 指定無し: 条件無し（すべて）
+rbankStatus = 
+
+# 購入サイト(数字) ※複数指定する場合は、カンマ区切り(例: 1,2)
+# 1: PC
+# 2: モバイル
+# 指定無し: 条件無し（すべて）
+orderSite = 
+
+# 同梱ステータス(数字) ※複数指定する場合は、カンマ区切り(例: 1,2)
+# 0: 非同梱
+# 1: 親注文
+# 2: 子注文
+# 指定無し: 条件無し（すべて）
+enclosureStatus = 
+
+# あす楽希望有無(1 or 0)
+# 1: あす楽希望有り
+# 0: あす楽希望無し
+# 指定無し: 条件無し（すべて）
+asuraku =
+
+# 購入履歴修正有無(1 or 0)
+# 1: 購入履歴修正有り
+# 0: 購入履歴修正無し
+# 指定無し: 条件無し（すべて）
+modify =
+
+# クーポン利用有無(1 or 0)
+# 1: クーポン利用有り
+# 0: クーポン利用無し
+# 指定無し: 条件無し（すべて）
+coupon = 
+
+# 医薬品情報(1 or 0)
+# 1: 薬事注文あり
+# 0: 薬事注文無し
+# 指定無し: 条件無し（すべて）
+drug =
+
+# 海外カゴ注文
+# 1: 海外カゴ注文有り
+# 0: 海外カゴ注文無し
+# 指定無し: 条件無し（すべて）
+overseas =
+
+# カード検索モデル
+[getOrderRequestModel.orderSearchModel.cardSearchModel]
+
+# 決済ステータス ※複数指定する場合は、カンマ区切り
+cardStatus = 
+
+# ブランド名(文字列)
+cardName =
+
+# カード支払い回数 ※複数指定する場合は、カンマ区切り
+payType = 
+
+# カード名義人(文字列)
+cardOwner =
+
+##
+## 検索条件 終了
+##
+#################################################
+
+
+
+#################################################
+##
+## 出力情報 開始
+##
+
+[output.orderModel]
+orderNumber = 受注番号
+status = 受注ステータス
+orderDate = 注文日時
+# cardStatus = 決済ステータス
+# paymentDate = 入金日
+# shippingDate = 配送日
+# shippingTerm = 希望時間帯
+# wishDeliveryDate = 配送希望日
+# operator = operator
+# memo = ひとことメモ
+# mailPlugSentence = メール差込文(お客様へのメッセージ)
+# firstAmount = 初期購入合計金額
+# carrierCode = 利用端末
+# emailCarrierCode = メールキャリアコード
+# isGiftCheck = ギフト配送希望
+# seqId = 更新シーケンスID
+# option = コメント
+# orderDate = 注文日時
+# orderType = 注文種別
+# isGift = 複数送付先フラグ
+# isBlackUser = 警告表示注文
+# isRakutenMembeer = 楽天会員フラグ
+# isTaxRecalc = 消費税再計算フラグ
+# canEnclosure = 同梱可能フラグ
+# goodsPrice = 商品合計金額
+# goodsTax = 消費税
+# postagePrice = 送料合計
+# deliveryPrice = 代引料
+# requestPrice = 請求金額
+# totalPrice = 合計金額
+# enclosureId = 同梱ID
+# enclosureGoodsPrice = 同梱商品合計金額
+# enclosurePostagePrice = 同梱送料合計
+# enclosureDeliveryPrice = 同梱代引料合計
+# enclosureGoodsTax = 同梱消費税合計
+# enclosureStatus = 同梱ステータス
+# enclosureRequestPrice = 同梱請求金額
+# enclosureTotalPrice = 同梱合計金額
+# enclosureRbankTransferCommision = 同梱楽天バンク決済振替手数料
+# enclosurePointPrice = 同梱ポイント利用合計
+# enclosureCouponPrice = 同梱クーポン利用合計
+# modify = 購入履歴修正アイコンフラグ
+# asurakuFlg = あす楽希望フラグ
+# couponAllTotalPrice = クーポン利用総額
+# couponShopPrice = 店舗発行クーポン利用額
+# couponOtherPrice = 楽天発行クーポン利用額
+# couponShopTotalUnit = クーポン利用数総合計
+# couponOtherTotalUnit = 店舗発行クーポン利用数
+[output.orderModel.ordererModel]
+# zipCode1 = 注文者:郵便番号1
+# zipCode2 = 注文者:郵便番号2
+# prefecture = 注文者:都道府県
+# city = 注文者:市区町村
+# subAddress = 注文者:それ以降の住所
+# famillyName = 注文者:姓漢字
+firstName = 注文者:名漢字
+# famillyNameKana = 注文者:姓カナ
+# firstNameKana = 注文者:名カナ
+# phoneNumber1 = 注文者:電話番号1
+# phoneNumber2 = 注文者:電話番号2
+# phoneNumber3 = 注文者:電話番号3
+# emailAddress = 注文者:メールアドレス
+# sex = 注文者:性別
+# birthYear = 注文者:誕生日(年)
+# birthMonth = 注文者:誕生日(月)
+# birthDay = 注文者:誕生日(日)
+# nickname = 注文者:ニックネーム
+[output.orderModel.normalOrderModel]
+# reserveNumber = 定期購入申込番号
+# detailId = 定期購入詳細ID
+# reserveType = 定期購入商品種別
+# reserveDatetime = 定期購入申込日時
+[output.orderModel.saOrderModel]
+# bidId = オークション:ビッドID
+# regDate = オークション:結果発表日
+# comment = オークション:コメント
+[output.orderModel.gbuyOrderModel]
+# bidId = 共同購入:ビッドID
+# commenet = 共同購入:コメント
+[output.orderModel.settlementModel]
+settlementName = 支払方法名
+[output.orderModel.settlementModel.cardModel]
+brandName = ブランド名
+cardNo = カード番号
+ownerName = 名義人
+expYM = 有効期限
+payType = 分割選択(支払種別)
+installmentDesc = 分割備考
+[output.orderModel.deliveryModel]
+# deliveryName = 配送方法名
+# deliveryClass = 配送区分
+[output.orderModel.pointModel]
+# usedPoint = 充当ポイント
+# pointUsage = 使用条件
+# sataus = 承認状態
+[output.orderModel.rBankModel]
+# orderNumber = RBank:受注番号
+# shopId = RBank:店舗ID
+# rbankStatus = RBank:決済ステータス
+# rbCommisionPayer = RBank:振替手数料負担区分
+# transferCommision = RBank:振替手数料
+[output.orderModel.wrappingModel1]
+# title = 1:ラッピングタイトル
+# name = 1:ラッピング名
+# price = 1:料金
+# isIncludeTax = 1:税込別
+# deleteWrappingFlg = 1:ラッピング削除フラグ
+[output.orderModel.wrappingModel2]
+# title = 2:ラッピングタイトル
+# name = 2:ラッピング名
+# price = 2:料金
+# isIncludeTax = 2:税込別
+# deleteWrappingFlg = 2:ラッピング削除フラグ
+[output.orderModel.packageModel]
+# basketId = 送付先キー
+# postagePrice = 送料
+# deliveryPrice = 代引料合計
+# goodsTax = 消費税合計
+# goodsPrice = 商品合計金額
+# noshi = のし
+# shippingNumber = 発送番号
+# deleteFlg = 削除フラグ
+# deliveryCompanyId = 配送業者ID
+[output.orderModel.packageModel.senderModel]
+zipCode1 = 送付者:郵便番号1
+zipCode2 = 送付者: 郵便番号2
+prefecture = 送付者:都道府県
+# city = 送付者:市区町村
+# subAddress = 送付者:それ以降の住所
+# famillyName = 送付者:姓漢字
+# firstName = 送付者:名漢字
+# famillyNameKana = 送付者:姓カナ
+# firstNameKana = 送付者:名カナ
+# phoneNumber1 = 送付者:電話番号1
+# phoneNumber2 = 送付者:電話番号2
+# phoneNumber3 = 送付者:電話番号3
+# emailAddress = 送付者:メールアドレス
+# sex = 送付者:性別
+# birthYear = 送付者:誕生日(年)
+# birthMonth = 送付者:誕生日(月)
+# birthDay = 送付者:誕生日(日)
+# nickname = 送付者:ニックネーム
+[output.orderModel.packageModel.deliveryCvsModel]
+# cvsCode = コンビニコード
+# storeGenreCode = ストア分類コード
+# storeCode = ストアコード
+# storeName = ストア名称
+# storeZip = 郵便番号
+# storePrefecture = 都道府県
+# storeAddress = その他住所
+# areaCode = 発注エリアコード
+# depo = センターデポコード
+# cvsOpenTime = 開店時間
+# cvsCloseTime = 閉店時間
+# cvsBikou = 特記事項
+[output.orderModel.packageModel.itemModel]
+# basketId = 商品キー
+itemId = 商品ID
+itemName = 商品名
+itemNumber = 商品番号
+# pageUrl = 商品URL
+price = 単価
+units = 個数
+# isincludedPostage = 送料込別
+# isIncludedTax = 税込別
+# isIncludedCashOnDeliveryPostage = 代引手数料込別
+selectedChoice = 項目・選択肢
+# pointRate = ポイントレート
+# pointType = ポイントタイプ
+# deleteItemFlg = 商品削除フラグ
+# restoreInventoryFlag = 在庫連動オプション
+[output.orderModel.packageModel.itemModel.normalItemModel]
+delvdateInfo = 納期情報
+inventoryType = 在庫タイプ
+[output.orderModel.packageModel.itemModel.saItemModel]
+[output.orderModel.packageModel.itemModel.gbuyItemModel]
+# isShiftStatus = 移行済
+# shiftDate = 移行日時
+# unitText = 商品単位
+# currentSumAmount = 実販売数
+[output.orderModel.packageModel.itemModel.gbuyItemModel.gbuyGchoiceModel]
+# gchoiceId = 商品内訳ID
+# itemId = 商品ID
+# orderby = 表示順序
+# gchoiceName = 項目名
+# gchoiceInvtry = 取扱個数
+# gchoiceMaxUnits = 最大購入個数
+# sumAmount = 内訳購入数量合計
+# soldFlag = 売り切れフラグ
+[output.orderModel.packageModel.itemModel.gbuyItemModel.gbuyBidInventoryModel]
+# gchoiceId = 商品内訳ID
+# bidUnits = 購入数
+
+# 未対応
+#[output.orderModel.childOrderModel]
+
+[output.orderModel.couponModel]
+couponCode = クーポンコード
+itemId = クーポン:商品ID
+couponName = クーポン名
+couponSummary = クーポン効果(サマリー)
+couponUsage = クーポン利用方法
+couponUnit = クーポン利用数
+couponCapital = クーポ原資資コード
+couponPrice = クーポン割引単価
+discountType = 割引タイプ
+expiryDate = 有効期限
+feeFlag = 課金フラグ
+couponTotalPrice =  クーポン利用金額
+
+
+##
+## 出力情報 終了
+##
+#################################################
