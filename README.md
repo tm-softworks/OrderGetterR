@@ -21,7 +21,7 @@ $ python src/OrderGetterR.py input.txt
 Explain how to run the automated tests for this system
 
 ```
-$ py.test tests/tests/test_orderlist.py
+$ py.test tests/test_orderlist.py
 ```
 
 ## Dependencies
