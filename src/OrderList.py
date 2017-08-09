@@ -41,9 +41,8 @@ class OrderList:
     self.targetShop = []
     self.isTest = False
     self.defaultConfigFile = 'setting.ini'
-    self.version = '1.0'
+    self.version = '1.0.1'
     self.myname = 'OrderList'
-    self.limitation = 0
 
   def initLog(self, logPath):
     logger.setLevel(logging.INFO)
@@ -358,7 +357,7 @@ class OrderList:
   
     return extendedOrderModel
   
-  def writeOutput(self, conf, output_file, output_columns, result, limit, writeHeader):
+  def writeOutput(self, conf, output_file, output_columns, result, writeHeader):
     logger.debug("writeOutput: rows={}".format(len(result)))
     csv_writer = csv.writer(
       output_file,
@@ -394,7 +393,6 @@ class OrderList:
           if linum == 0 and writeHeader: csv_writer.writerow(headers)
           csv_writer.writerow(cols)
           linum += 1
-          if linum > limit: return linum
 
     return linum
 
@@ -540,13 +538,8 @@ class OrderList:
             if not len(result['orderModel']):
               continue
 
-          if self.limitation:
-            limit = self.limitation - total_output
-            if limit <= 0: break
-          else:
-            limit = 0
           total_output += self.writeOutput(config['api'], output_file,
-                                           output_columns, result, limit, index == 0)
+                                           output_columns, result, index == 0)
           self.writeCouponDetail(config['api'], coupon_file,
                                  output_columns, result, index == 0)
           index += 1
