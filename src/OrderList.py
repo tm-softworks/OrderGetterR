@@ -504,10 +504,10 @@ class OrderList:
       couponfile = self.genFileName('coupon', outDir)
       coupon = args.coupon
       coupon_file = None
-      with io.open(outfile, "w", encoding=config['api']['output_encoding']) as output_file:
       writeCouponHeader = True
+      with io.open(outfile, "w", encoding=config['api']['output_encoding'], errors='replace') as output_file:
         if coupon:
-          coupon_file = io.open(couponfile, "w", encoding=config['api']['output_encoding'])
+          coupon_file = io.open(couponfile, "w", encoding=config['api']['output_encoding'], errors='replace')
         for dt in datetimeList:
           input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_START_DATE_KEY] = dt['start']
           input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_END_DATE_KEY] = dt['end']
