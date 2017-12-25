@@ -448,7 +448,7 @@ class OrderList:
                   v = datetime_format.format(eo[oc])
                 else:
                   v = eo[oc]
-                  cols.append(v)
+                cols.append(v)
             else:
               continue
           if linum == 0 and writeHeader: csv_writer.writerow(headers)
@@ -505,6 +505,7 @@ class OrderList:
       coupon = args.coupon
       coupon_file = None
       with io.open(outfile, "w", encoding=config['api']['output_encoding']) as output_file:
+      writeCouponHeader = True
         if coupon:
           coupon_file = io.open(couponfile, "w", encoding=config['api']['output_encoding'])
         for dt in datetimeList:
@@ -540,8 +541,10 @@ class OrderList:
 
           total_output += self.writeOutput(config['api'], output_file,
                                            output_columns, result, index == 0)
-          self.writeCouponDetail(config['api'], coupon_file,
-                                 output_columns, result, index == 0)
+          cwnum = self.writeCouponDetail(config['api'], coupon_file,
+                                         output_columns, result, writeCouponHeader)
+          if cwnum > 0:
+            writeCouponHeader = False
           index += 1
   
     except Exception as e:
