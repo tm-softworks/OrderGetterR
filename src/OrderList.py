@@ -453,7 +453,7 @@ class OrderList:
                   v = datetime_format.format(eo[oc])
                 else:
                   v = eo[oc]
-                cols.append(v)
+              cols.append(v)
             else:
               continue
           if linum == 0 and writeHeader: csv_writer.writerow(headers)
