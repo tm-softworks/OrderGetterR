@@ -90,27 +90,32 @@ class OrderList:
     condition['api'] = {}
     return condition
   
+  def defaultConfigPart(self, conf, key, value):
+    if not key in conf: conf[key] = value
+
   def defaultConfig(self, conf):
-    if not 'logDir' in conf['global']: conf['global']['logDir'] = './logs'
-    if not 'logFile' in conf['global']: conf['global']['logFile'] = 'orderlist.log'
-    if not 'outDir' in conf['global']: conf['global']['outDir'] = './data'
-  
-    if not 'User-Agent' in conf['api']: conf['api']['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
-    if not 'input_encoding' in conf['api']: conf['api']['input_encoding'] = 'cp932'
-    if not 'output_encoding' in conf['api']: conf['api']['output_encoding'] = 'cp932'
-    if not 'input_delimiter' in conf['api']: conf['api']['input_delimiter'] = ','
-    if not 'input_quotechar' in conf['api']: conf['api']['input_quotechar'] = '"'
-    if not 'output_delimiter' in conf['api']: conf['api']['output_delimiter'] = ','
-    if not 'output_quotechar' in conf['api']: conf['api']['output_quotechar'] = '"'
-    if not 'continue_errorcode' in conf['api']: conf['api']['continue_errorcode'] = 'N00-000,W00-000,E10-001'
-    if not 'nothing_errorcode' in conf['api']: conf['api']['nothing_errorcode'] = 'E10-001'
-    if not 'warning_errorcode' in conf['api']: conf['api']['warning_errorcode'] = 'W00-000'
-    if not 'call_per_sec' in conf['api']: conf['api']['call_per_sec'] = '1'
-    if not 'list_keys' in conf['api']: conf['api']['list_keys'] = 'orderNumber,status,orderType,mailAddressType,pointStatus,rbankStatus,orderSite,enclosureStatus,cardStatus,payType'
-    if not 'date_keys' in conf['api']: conf['api']['date_keys'] = 'startDate,endDate'
-    if not 'bool_keys' in conf['api']: conf['api']['bool_keys'] = 'isOrderNumberOnlyFlg,pointUsed,modify,asuraku,coupon'
-    if not 'parse_format' in conf['api']: conf['api']['parse_format'] = '%%Y/%%m/%%d %%H:%%M:%%S'
-    if not 'datetime_format' in conf['api']: conf['api']['datetime_format'] = '{0:%%Y/%%m/%%d %%H:%%M:%%S}'
+    g = conf['global']
+    self.defaultConfigPart(g, 'logDir', './logs')
+    self.defaultConfigPart(g, 'logFile', 'orderlist.log')
+    self.defaultConfigPart(g, 'outDir', './data')
+
+    a = conf['api']
+    self.defaultConfigPart(a, 'User-Agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36')
+    self.defaultConfigPart(a, 'input_encoding', 'cp932')
+    self.defaultConfigPart(a, 'output_encoding', 'cp932')
+    self.defaultConfigPart(a, 'input_delimiter', ',')
+    self.defaultConfigPart(a, 'input_quotechar', '"')
+    self.defaultConfigPart(a, 'output_delimiter', ',')
+    self.defaultConfigPart(a, 'output_quotechar', '"')
+    self.defaultConfigPart(a, 'continue_errorcode', 'N00-000,W00-000,E10-001')
+    self.defaultConfigPart(a, 'nothing_errorcode', 'E10-001')
+    self.defaultConfigPart(a, 'warning_errorcode', 'W00-000')
+    self.defaultConfigPart(a, 'call_per_sec', '1')
+    self.defaultConfigPart(a, 'list_keys', 'orderNumber,status,orderType,mailAddressType,pointStatus,rbankStatus,orderSite,enclosureStatus,cardStatus,payType')
+    self.defaultConfigPart(a, 'date_keys', 'startDate,endDate')
+    self.defaultConfigPart(a, 'bool_keys', 'isOrderNumberOnlyFlg,pointUsed,modify,asuraku,coupon')
+    self.defaultConfigPart(a, 'parse_format', '%%Y/%%m/%%d %%H:%%M:%%S')
+    self.defaultConfigPart(a, 'datetime_format', '{0:%%Y/%%m/%%d %%H:%%M:%%S}')
   
   
   prev_apicall = None
