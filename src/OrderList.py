@@ -18,6 +18,7 @@ import pytz
 
 from rakuten_ws import RakutenWebService
 import zeep
+from zeep.helpers import serialize_object
 
 JST = pytz.timezone('Asia/Tokyo')
 
@@ -29,11 +30,14 @@ GET_ORDER_ROOT_KEY = 'getOrderRequestModel'
 GET_ORDER_SEARCH_ROOT_KEY = 'orderSearchModel'
 ORDER_SEARCH_START_DATE_KEY = 'startDate'
 ORDER_SEARCH_END_DATE_KEY = 'endDate'
+ORDER_SEARCH_START_DATETIME_KEY = 'startDatetime'
+ORDER_SEARCH_END_DATETIME_KEY = 'endDatetime'
 GENERAL_SECTION_KEY = 'general'
 GENERAL_PERIOD_KEY = 'period'
 GENERAL_DURATION_1CALL_KEY = 'duration'
 GENERAL_THIS_MONTH_KEY = 'thisMonth'
 GENERAL_PREV_MONTH_KEY = 'prevMonth'
+GET_ORDER_COUNT_LIMIT = 100
 
 class OrderList:
 
@@ -43,6 +47,7 @@ class OrderList:
     self.defaultConfigFile = 'setting.ini'
     self.version = '1.0.1'
     self.myname = 'OrderList'
+    self.config = None
 
   def initLog(self, logPath):
     logger.setLevel(logging.INFO)
@@ -112,10 +117,15 @@ class OrderList:
     self.defaultConfigPart(a, 'warning_errorcode', 'W00-000')
     self.defaultConfigPart(a, 'call_per_sec', '1')
     self.defaultConfigPart(a, 'list_keys', 'orderNumber,status,orderType,mailAddressType,pointStatus,rbankStatus,orderSite,enclosureStatus,cardStatus,payType')
+    self.defaultConfigPart(a, 'list_number_keys', 'orderProgressList,subStatusIdList,orderTypeList')
     self.defaultConfigPart(a, 'date_keys', 'startDate,endDate')
+    self.defaultConfigPart(a, 'datetime_keys', 'startDatetime,endDatetime')
     self.defaultConfigPart(a, 'bool_keys', 'isOrderNumberOnlyFlg,pointUsed,modify,asuraku,coupon')
+    self.defaultConfigPart(a, 'number_keys', 'dateType,settlementMethod,shippingDateBlankFlag,shippingNumberBlankFlag,searchKeywordType,mailSendType,phoneNumberType,purchaseSiteType,asurakuFlag,couponUseFlag,drugFlag,overseasFlag,requestRecordsAmount,requestPage,sortColumn,sortDirection')
     self.defaultConfigPart(a, 'parse_format', '%%Y/%%m/%%d %%H:%%M:%%S')
+    self.defaultConfigPart(a, 'parse_format_datetime', '%%Y-%%m-%%dT%%H:%%M:%%S%%z')
     self.defaultConfigPart(a, 'datetime_format', '{0:%%Y/%%m/%%d %%H:%%M:%%S}')
+    self.defaultConfigPart(a, 'RPay', '0')
   
   
   prev_apicall = None
@@ -140,7 +150,12 @@ class OrderList:
       'shop_url': conf['shopUrl'],
     }
     ws = RakutenWebService(**credentials)
-    ws.rms.order.zeep_client.transport.session.headers['User-Agent'] = 'OrderListClient/1.0'
+    ua = 'OrderListClient/1.0.1'
+    if conf['RPay'] == '0':
+      ws.rms.order.zeep_client.transport.session.headers['User-Agent'] = ua
+    else:
+      ws.rms.rpay.search_order.client.service.webservice.session.headers['User-Agent'] = ua
+      ws.rms.rpay.get_order.client.service.webservice.session.headers['User-Agent'] = ua
   
     return ws
   
@@ -174,6 +189,57 @@ class OrderList:
     logger.debug(ret)
     return ret
   
+  def getOrderRPay(self, ws, input_dict, conf):
+    logger.info('getOrderRPay start')
+    logger.debug('getOrderRPay: {}'.format(input_dict))
+
+    wait_sec = int(conf['call_per_sec'])
+    args = input_dict[GET_ORDER_ROOT_KEY]
+    if 'startDate' in args[GET_ORDER_SEARCH_ROOT_KEY]:
+      args['startDatetime'] = args[GET_ORDER_SEARCH_ROOT_KEY]['startDate']
+    if 'endDate' in args[GET_ORDER_SEARCH_ROOT_KEY]:
+      args['endDatetime'] = args[GET_ORDER_SEARCH_ROOT_KEY]['endDate']
+    del args[GET_ORDER_SEARCH_ROOT_KEY]
+    self.prev_apicall = self.waitSec(self.prev_apicall, wait_sec)
+    ret = ws.rms.rpay.search_order(**args)
+    logger.debug('search_order result: {}'.format(vars(ret)))
+    if 'errorCode' in ret and not ret['errorCode'] in ['N00-000', 'W00-000']:
+      logger.error('{}'.format(ret))
+      #logger.debug(ws.ichiba.item.search(keyword='4562373379528'))
+    logger.debug(vars(ret))
+    logger.debug(ret.get('orderNumberList'))
+
+    result_array = []
+    if 'orderNumberList' in ret and len(ret['orderNumberList']) > 0:
+      orderNumberList = ret['orderNumberList']
+      index = 0
+      while True:
+        targetList = orderNumberList[index:index+GET_ORDER_COUNT_LIMIT]
+        logger.info('get_order: {} - {}'.format(index, index + len(targetList) - 1))
+        if len(targetList) == 0:
+          break
+
+        index += len(targetList)
+
+        args = {"orderNumberList": targetList}
+        self.prev_apicall = self.waitSec(self.prev_apicall, wait_sec)
+        ret2 = ws.rms.rpay.get_order(**args)
+        logger.debug('get_order result: {}'.format(vars(ret2)))
+        messages = ret2["MessageModelList"]
+        result_array.extend(ret2["OrderModelList"])
+        
+        logger.info('get_order: {}'.format(len(targetList)))
+
+        if len(targetList) < GET_ORDER_COUNT_LIMIT:
+          break
+
+      return {'orderModel': result_array, 'errorCode': 'N00-000', 'message': 'Found'}
+    else:
+      ret['errorCode'] = 'W00-000'
+      ret['message'] = 'Not Found'
+      ret['orderModel'] = []
+    return ret
+  
   def to_bool(self, s):
     return False if s.lower() in ['false', '0'] else True
   
@@ -193,7 +259,7 @@ class OrderList:
     for section in condition.sections():
       if section.startswith(OUTPUT_KEY):
         keys = section.split('.')
-        if len(keys) >= 2 and keys[1] == 'orderModel':
+        if len(keys) >= 2 and (keys[1] == 'orderModel' or keys[1] == 'OrderModelList'):
           prefix = ".".join(keys[2:])
           if len(prefix): prefix += "."
           for key in condition[section]:
@@ -204,8 +270,11 @@ class OrderList:
   
   def readCondition(self, config, condition):
     list_keys = config['api']['list_keys'].split(',')
+    list_number_keys = config['api']['list_number_keys'].split(',')
     date_keys = config['api']['date_keys'].split(',')
+    datetime_keys = config['api']['datetime_keys'].split(',')
     bool_keys = config['api']['bool_keys'].split(',')
+    number_keys = config['api']['number_keys'].split(',')
     
     new_hash = {}
     for section in condition.sections():
@@ -216,11 +285,19 @@ class OrderList:
           if not len(val) == 0:
             if key in list_keys:
               new_dict[key] = val.split(',')
+            elif key in list_number_keys:
+              s = val.split(',')
+              new_dict[key] = [int(i) for i in s]
             elif key in date_keys:
               parse_format = config['api']['parse_format']
               new_dict[key] = datetime.strptime(val, parse_format).replace(tzinfo=JST)
+            elif key in datetime_keys:
+              parse_format = config['api']['parse_format_datetime']
+              new_dict[key] = datetime.strptime(val, parse_format)
             elif key in bool_keys:
               new_dict[key] = self.to_bool(val)
+            elif key in number_keys:
+              new_dict[key] = int(val)
             else:
               new_dict[key] = val
         if len(new_dict):
@@ -348,12 +425,14 @@ class OrderList:
   
     extendedOrderModel = []
     order_dict = self.grabChildren(orderModel)
-    for packageModel in orderModel['packageModel']:
-      prefix = 'packageModel.'
+    key1 = 'packageModel' if 'packageModel' in orderModel else 'PackageModelList'
+    for packageModel in orderModel[key1]:
+      prefix = key1+'.'
       logger.debug('{}'.format(packageModel))
       pkg_dict = self.grabChildren(packageModel, prefix)
-      for itemModel in packageModel['itemModel']:
-        prefix = 'packageModel.itemModel.'
+      key2 = 'itemModel' if 'itemModel' in packageModel else 'ItemModelList'
+      for itemModel in packageModel[key2]:
+        prefix = key1+'.'+key2+'.'
         item_dict = self.grabChildren(itemModel, prefix)
         new_dict = copy.copy(order_dict)
         new_dict.update(pkg_dict)
@@ -380,13 +459,16 @@ class OrderList:
     linum = 0
     for (index, orderModelObj) in enumerate(listOrderModel):
       logger.debug('{}: {}'.format(index, orderModelObj))
-      orderModel = zeep.helpers.serialize_object(orderModelObj)
+      if conf['RPay'] == '0':
+        orderModel = zeep.helpers.serialize_object(orderModelObj)
+      else:
+        orderModel = orderModelObj
       if isinstance(orderModel, dict):
         extendedOrderModel = self.extendOrder(orderModel)
         for eo in extendedOrderModel:
           cols = []
           for (oc, col) in output_columns.items():
-            if oc.find('couponModel') < 0 and oc.find('childOrderModel') < 0:
+            if oc.find('couponModel') < 0 and oc.find('childOrderModel') < 0 and oc.find('CouponModelList') < 0:
               if linum == 0: headers.append(col)
               v = ""
               if oc in eo:
@@ -409,18 +491,20 @@ class OrderList:
   
     extendedCouponModel = []
     order_dict = self.grabChildren(orderModel)
-    for packageModel in orderModel['couponModel']:
-      prefix = 'couponModel.'
-      logger.debug('{}'.format(packageModel))
-      pkg_dict = self.grabChildren(packageModel, prefix)
-      new_dict = copy.copy(order_dict)
-      new_dict.update(pkg_dict)
-      extendedCouponModel.append(new_dict)
+    key1 = 'couponModel' if 'couponModel' in orderModel else 'CouponModelList'
+    if orderModel[key1] is not None:
+      for packageModel in orderModel[key1]:
+        prefix = key1+'.'
+        logger.debug('{}'.format(packageModel))
+        pkg_dict = self.grabChildren(packageModel, prefix)
+        new_dict = copy.copy(order_dict)
+        new_dict.update(pkg_dict)
+        extendedCouponModel.append(new_dict)
   
     return extendedCouponModel
 
   def writeCouponDetail(self, conf, output_file, output_columns, result, writeHeader):
-    if not output_file: return
+    if not output_file: return 0
   
     logger.debug("writeCouponDetail: rows={}".format(len(result)))
     csv_writer = csv.writer(
@@ -475,6 +559,7 @@ class OrderList:
       continueErrorCode = config['api']['continue_errorcode'].split(',')
       nothingErrorCode = config['api']['nothing_errorcode'].split(',')
       warningErrorCode = config['api']['warning_errorcode'].split(',')
+      rpay = True if config['api']['RPay'] == '1' else False
   
   
       os.makedirs(logDir, exist_ok=True)
@@ -490,10 +575,17 @@ class OrderList:
   
       # read input
       (input_dict, output_columns, general_conf) = self.readInput(config, args.input_file)
-  
-      start = input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_START_DATE_KEY]
-      end = input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_END_DATE_KEY]
-  
+
+      if ORDER_SEARCH_START_DATE_KEY in input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY]:
+        start = input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_START_DATE_KEY]
+      else:
+        start = input_dict[GET_ORDER_ROOT_KEY]['startDatetime']
+
+      if ORDER_SEARCH_END_DATE_KEY in input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY]:
+        end = input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_END_DATE_KEY]
+      else:
+        end = input_dict[GET_ORDER_ROOT_KEY]['endDatetime']
+
       duration_1call = -1
       if GENERAL_DURATION_1CALL_KEY in general_conf:
         val = general_conf[GENERAL_DURATION_1CALL_KEY]
@@ -514,12 +606,17 @@ class OrderList:
         if coupon:
           coupon_file = io.open(couponfile, "w", encoding=config['api']['output_encoding'], errors='replace')
         for dt in datetimeList:
+          if not GET_ORDER_SEARCH_ROOT_KEY in input_dict[GET_ORDER_ROOT_KEY]:
+            input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY] = {}
           input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_START_DATE_KEY] = dt['start']
           input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_END_DATE_KEY] = dt['end']
           logger.debug(input_dict)
           result = None
           if not args.dry_run:
-            result = self.getOrder(ws, input_dict, config['api'])
+            if rpay:
+              result = self.getOrderRPay(ws, input_dict, config['api'])
+            else:
+              result = self.getOrder(ws, input_dict, config['api'])
           else:
             ss = "{0:%Y/%m/%d %H:%M:%S}".format(dt['start'])
             es = "{0:%Y/%m/%d %H:%M:%S}".format(dt['end'])
@@ -530,7 +627,7 @@ class OrderList:
             err = '{}: {}'.format(result['errorCode'], result['message'])
             print('  {}'.format(err))
             logger.error('{}'.format(err))
-            logger.error('unitError: {}'.format(result['unitError']))
+            #logger.error('unitError: {}'.format(result['unitError']))
             raise Exception(err)
           elif 'errorCode' in result and result['errorCode'] in nothingErrorCode:
             warn = '{}: {}'.format(result['errorCode'], result['message'])
@@ -540,12 +637,14 @@ class OrderList:
             warn = '{}: {}'.format(result['errorCode'], result['message'])
             print('  {}'.format(warn))
             logger.warn('{}'.format(warn))
-            logger.warn('unitError: {}'.format(result['unitError']))
+            #logger.warn('unitError: {}'.format(result['unitError']))
             if not len(result['orderModel']):
               continue
 
-          total_output += self.writeOutput(config['api'], output_file,
-                                           output_columns, result, index == 0)
+          cnt = self.writeOutput(config['api'], output_file,
+                                 output_columns, result, index == 0)
+          total_output += cnt
+          print('  Write Success: line={}'.format(cnt))
           cwnum = self.writeCouponDetail(config['api'], coupon_file,
                                          output_columns, result, writeCouponHeader)
           if cwnum > 0:

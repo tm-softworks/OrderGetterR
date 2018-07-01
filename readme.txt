@@ -16,6 +16,7 @@
  - setting.ini
    受注情報出力先
    受注APIの認証情報（ライセンスキー、シークレットキー）等を設定します
+   ※ RPay対応の APIを利用する場合は、RPay に 1 を設定してください。
 
 ### 使用方法
 
@@ -41,7 +42,7 @@
  
  - Python Rakuten Web Service (version: 0.2.1)
  Copyright (c) 2016, Salem Harrache
- https://github.com/alexandriagroup/rakuten-ws/blob/master/LICENSE
+ https://github.com/tm-softworks/rakuten-ws/blob/rpay/LICENSE
 
  - pytz - World Timezone Definitions for Python (2016.10)
  Copyright (c) 2003-2005 Stuart Bishop <stuart@stuartbishop.net>

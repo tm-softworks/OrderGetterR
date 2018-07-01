@@ -26,8 +26,9 @@ $ py.test tests/test_orderlist.py
 
 ## Dependencies
 
-* Python Rakuten Web Service (version: 0.2.1)  
-https://github.com/alexandriagroup/rakuten-ws
+* Python Rakuten Web Service (version: 0.4.3)  
+https://github.com/tm-softworks/rakuten-ws/tree/rpay
+
 
 * pytz - World Timezone Definitions for Python (2016.10)  
 https://github.com/newvem/pytz

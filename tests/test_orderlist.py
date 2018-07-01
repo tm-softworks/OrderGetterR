@@ -8,6 +8,10 @@ import unittest
 from OrderList import OrderList
 from datetime import datetime
 import pytz
+from httpretty import HTTPretty, httprettified
+import sure
+import httpretty
+import requests
  
 class TestOrderList(unittest.TestCase):
   def test_genFileName(self):
@@ -34,6 +38,565 @@ class TestOrderList(unittest.TestCase):
     self.assertEqual(ret['aaa.ddd.eee'], True)
     self.assertIsInstance(ret['aaa.fff'], list)
     print(ret)
+
+  @httpretty.activate
+  def test_rpayOrder_400(self):
+    ol = OrderList()
+    conf = ol.emptyConfig()
+    ol.defaultConfig(conf)
+    conf['api']['licenseKey'] = 'AAA'
+    conf['api']['secretService'] = 'BBB'
+    conf['api']['shopUrl'] = 'testshop_666'
+    conf['api']['RPay'] = '1'
+    ws = ol.getRmsService(conf['api'])
+    (input_dict, output_columns, general_conf) = ol.readInput(conf, 'tests/input_test1.conf')
+
+    post_searchOrder_response = """{
+    "MessageModelList": [
+	{
+	    "messageType": "ERROR",
+	    "messageCode": "ORDER_EXT_API_GET_ORDER_ERROR_009",
+	    "message": "orderNumberListの項目を指定してください。"
+	}
+    ],
+    "OrderModelList": []
+}"""
+
+    httpretty.register_uri(httpretty.POST, 'https://api.rms.rakuten.co.jp/es/2.0/order/searchOrder',
+                           body=post_searchOrder_response,
+                           content_type='application/json')
+
+    result = ol.getOrderRPay(ws, input_dict, conf['api'])
+    print(result.status)
+    assert result['errorCode'] == 'W00-000'
+
+
+  @httpretty.activate
+  def test_rpayOrder_404(self):
+    ol = OrderList()
+    conf = ol.emptyConfig()
+    ol.defaultConfig(conf)
+    conf['api']['licenseKey'] = 'AAA'
+    conf['api']['secretService'] = 'BBB'
+    conf['api']['shopUrl'] = 'testshop_666'
+    conf['api']['RPay'] = '1'
+    ws = ol.getRmsService(conf['api'])
+    (input_dict, output_columns, general_conf) = ol.readInput(conf, 'tests/input_test1.conf')
+    post_searchOrder_response = """{
+    "orderNumberList": [
+    ],
+    "MessageModelList": [
+	{
+	    "messageType": "INFO",
+	    "messageCode": "ORDER_EXT_API_SEARCH_ORDER_INFO_102",
+	    "message": "注文検索に成功しました。"
+	}
+    ],
+    "PaginationResponseModel": {
+        "totalRecordsAmount": null,
+        "totalPages": null,
+        "requestPages": null
+    }
+}"""
+
+    post_getOrder_response = """{
+    "MessageModelList": [
+	{
+	    "messageType": "INFO",
+	    "messageCode": "ORDER_EXT_API_GET_ORDER_INFO_102",
+	    "message": "受注情報が取得できませんでした。",
+	    "orderNumber": "234323-20180101-10101001"
+	},
+	{
+	    "messageType": "INFO",
+	    "messageCode": "ORDER_EXT_API_GET_ORDER_INFO_102",
+	    "message": "受注情報が取得できませんでした。",
+	    "orderNumber": "234323-20180101-10101002"
+	},
+	{
+	    "messageType": "INFO",
+	    "messageCode": "ORDER_EXT_API_GET_ORDER_INFO_102",
+	    "message": "受注情報が取得できませんでした。",
+	    "orderNumber": "234323-20180101-10101003"
+	}
+    ],
+    "OrderModelList": []
+}"""
+
+    httpretty.register_uri(httpretty.POST,
+                           'https://api.rms.rakuten.co.jp/es/2.0/order/searchOrder',
+                           body=post_searchOrder_response,
+                           content_type='application/json')
+
+    result = ol.getOrderRPay(ws, input_dict, conf['api'])
+    print(result.status)
+    assert result['errorCode'] == 'W00-000'
+    assert result['message'] == 'Not Found'
+    assert len(result['orderModel']) == 0
+
+  @httpretty.activate
+  def test_rpayOrder_200(self):
+    ol = OrderList()
+    conf = ol.emptyConfig()
+    ol.defaultConfig(conf)
+    conf['api']['licenseKey'] = 'AAA'
+    conf['api']['secretService'] = 'BBB'
+    conf['api']['shopUrl'] = 'testshop_666'
+    conf['api']['RPay'] = '1'
+    ws = ol.getRmsService(conf['api'])
+    (input_dict, output_columns, general_conf) = ol.readInput(conf, 'tests/input_test1_rpay.conf')
+    start = input_dict['getOrderRequestModel']['orderSearchModel']['startDate']
+    end = input_dict['getOrderRequestModel']['orderSearchModel']['endDate']
+    duration_1call = -1
+    val = general_conf['duration']
+    if val: duration_1call = int(val)
+  
+    datetimeList = ol.datetimeSplit(start, end, duration_1call)
+
+
+    post_searchOrder_response = """{
+    "orderNumberList": [
+        "26161-20180101-22222201",
+        "26161-20180101-22222202",
+        "26161-20180101-22222203"
+    ],
+    "MessageModelList": [
+	{
+	    "messageType": "INFO",
+	    "messageCode": "ORDER_EXT_API_SEARCH_ORDER_INFO_102",
+	    "message": "注文検索に成功しました。"
+	}
+    ],
+    "PaginationResponseModel": {
+        "totalRecordsAmount": null,
+        "totalPages": null,
+        "requestPages": null
+    }
+}"""
+
+    post_getOrder_response = """{
+    "MessageModelList": [
+	{
+	    "messageType": "INFO",
+	    "messageCode": "ORDER_EXT_API_GET_ORDER_INFO_101",
+	    "message": "受注情報取得に成功しました。(取得件数2件)"
+	}
+    ],
+    "OrderModelList": [
+	{
+	    "orderNumber": "234323-20180101-10101004",
+	    "orderProgress": 300,
+	    "subStatusId": null,
+	    "subStatusName": null,
+	    "orderDatetime": "",
+	    "shopOrderCfmDatetime": "",
+	    "orderFixDatetime": "",
+	    "shippingInstDatetime": "",
+	    "shippingCmplRptDatetime": "",
+	    "cancelDueDate": "",
+	    "deliveryDate": "",
+	    "shippingTerm": "",
+	    "remarks": "",
+	    "giftCheckFlag": "",
+	    "severalSenderFlag": "",
+	    "equalSenderFlag": "",
+	    "isolatedIslandFlag": "",
+	    "rakutenMemberFlag": "",
+	    "carrierCode": "",
+	    "emailCarrierCode": "",
+	    "orderType": "",
+	    "reserveNumber": "",
+	    "reserveDeliveryCount": "",
+	    "cautionDisplayType": "",
+	    "rakutenConfirmFlag": "",
+	    "goodsPrice": "",
+	    "goodsTax": "",
+	    "postagePrice": "",
+	    "deliveryPrice": "",
+	    "totalPrice": "",
+	    "requestPrice": "",
+	    "couponAllTotalPrice": "",
+	    "couponShopPrice": "",
+	    "couponOtherPrice": "",
+	    "asurakuFlag": "",
+	    "drugFlag": "",
+	    "dealFlag": "",
+	    "membershipType": "",
+	    "memo": "",
+	    "operator": "",
+	    "mailPlugSentence": "",
+	    "modifyFlag": "",
+	    "isTaxRecalc": "",
+	    "OrderModel": {
+		"zipCode1": "",
+		"zipCode2": "",
+		"prefecture": "",
+		"city": "",
+		"subAddress": "",
+		"familyName": "",
+		"firstName": "",
+		"familyNameKana": "",
+		"firstNameKana": "",
+		"phoneNumber1": "",
+		"phoneNumber2": "",
+		"phoneNumber3": "",
+		"emailAddress": "",
+		"sex": "",
+		"birthYear": "",
+		"birthMonth": "",
+		"birthDay": ""
+	    },
+	    "SettlementModel": {
+		"settlementMethod": "",
+		"cardName": "",
+		"cardNumber": "",
+		"cardOwner": "",
+		"cardYm": "",
+		"cardPayType": "",
+		"cardInstallmentDesc": ""
+	    },
+	    "DeliveryModel": {
+		"deliveryName": "",
+		"deliveryClass": ""
+	    },
+	    "PointModel": {
+		"usedPoint": 0
+	    },
+	    "WrappingModel1": {
+	    },
+	    "WrappingModel2": null,
+	    "PackageModelList": [
+		{
+		    "basketId": "",
+		    "postagePrice": "",
+		    "deliveryPrice": "",
+		    "goodsTax": "",
+		    "goodsPrice": "",
+		    "totalPrice": "",
+		    "noshi": "",
+		    "packageDeleteFlag": "",
+		    "SenderModel": {
+			"zipCode1": "123",
+			"zipCode2": "789",
+			"prefecture": "",
+			"city": "",
+			"subAddress": "",
+			"familyName": "",
+			"firstName": "",
+			"familyNameKana": "",
+			"firstNameKana": "",
+			"phoneNumber1": "",
+			"phoneNumber2": "",
+			"phoneNumber3": "",
+			"emailAddress": ""
+		    },
+		    "ItemModelList": [
+			{
+			    "itemDetailId": "",
+			    "itemName": "商品１",
+			    "itemId": "",
+			    "itemNumber": "",
+			    "manageNumber": "",
+			    "price": "",
+			    "units": "",
+			    "includedPostage": "",
+			    "includedTaxFlag": "",
+			    "ncludedCashOnDeliveryPostageFlag": "",
+			    "selectedChoice": "",
+			    "pointRate": "",
+			    "inventoryType": "",
+			    "delvdateInfo": "",
+			    "restoreInventoryFlag": "",
+			    "deleteItemFlag": ""
+			},
+			{
+			    "itemDetailId": "",
+			    "itemName": "商品２",
+			    "itemId": "",
+			    "itemNumber": "",
+			    "manageNumber": "",
+			    "price": "",
+			    "units": "",
+			    "includedPostage": "",
+			    "includedTaxFlag": "",
+			    "ncludedCashOnDeliveryPostageFlag": "",
+			    "selectedChoice": "",
+			    "pointRate": "",
+			    "inventoryType": "",
+			    "delvdateInfo": "",
+			    "restoreInventoryFlag": "",
+			    "deleteItemFlag": ""
+			}
+		    ],
+		    "ShippingModelList": [
+			{
+			}
+		    ],
+		    "DeliveryCvsModel": null
+		},
+		{
+		    "basketId": "",
+		    "postagePrice": "",
+		    "deliveryPrice": "",
+		    "goodsTax": "",
+		    "goodsPrice": "",
+		    "totalPrice": "",
+		    "noshi": "",
+		    "packageDeleteFlag": "",
+		    "SenderModel": {
+			"zipCode1": "123",
+			"zipCode2": "456",
+			"prefecture": "",
+			"city": "",
+			"subAddress": "",
+			"familyName": "",
+			"firstName": "",
+			"familyNameKana": "",
+			"firstNameKana": "",
+			"phoneNumber1": "",
+			"phoneNumber2": "",
+			"phoneNumber3": "",
+			"emailAddress": ""
+		    },
+		    "ItemModelList": [
+			{
+			    "itemDetailId": "",
+			    "itemName": "商品３",
+			    "itemId": "",
+			    "itemNumber": "",
+			    "manageNumber": "",
+			    "price": "",
+			    "units": "",
+			    "includedPostage": "",
+			    "includedTaxFlag": "",
+			    "ncludedCashOnDeliveryPostageFlag": "",
+			    "selectedChoice": "",
+			    "pointRate": "",
+			    "inventoryType": "",
+			    "delvdateInfo": "",
+			    "restoreInventoryFlag": "",
+			    "deleteItemFlag": ""
+			},
+			{
+			    "itemDetailId": "",
+			    "itemName": "商品４",
+			    "itemId": "",
+			    "itemNumber": "",
+			    "manageNumber": "",
+			    "price": "",
+			    "units": "",
+			    "includedPostage": "",
+			    "includedTaxFlag": "",
+			    "ncludedCashOnDeliveryPostageFlag": "",
+			    "selectedChoice": "",
+			    "pointRate": "",
+			    "inventoryType": "",
+			    "delvdateInfo": "",
+			    "restoreInventoryFlag": "",
+			    "deleteItemFlag": ""
+			}
+		    ],
+		    "ShippingModelList": [
+			{
+			}
+		    ],
+		    "DeliveryCvsModel": null
+		}
+	    ],
+	    "CouponModelList": [
+		{
+		    "couponCode": "",
+		    "itemId": "",
+		    "couponName": "test2",
+		    "couponSummary": "",
+		    "couponCapital": "",
+		    "expiryDate": "",
+		    "couponPrice": "",
+		    "couponUnit": "",
+		    "couponTotalPrice": ""
+		}
+	    ],
+	    "ChangeReasonModelList": []
+	},
+	{
+	    "orderNumber": "234323-20180101-10101005",
+	    "orderProgress": 301,
+	    "subStatusId": null,
+	    "subStatusName": null,
+	    "orderDatetime": "",
+	    "shopOrderCfmDatetime": "",
+	    "orderFixDatetime": "",
+	    "shippingInstDatetime": "",
+	    "shippingCmplRptDatetime": "",
+	    "cancelDueDate": "",
+	    "deliveryDate": "",
+	    "shippingTerm": "",
+	    "remarks": "",
+	    "giftCheckFlag": "",
+	    "severalSenderFlag": "",
+	    "equalSenderFlag": "",
+	    "isolatedIslandFlag": "",
+	    "rakutenMemberFlag": "",
+	    "carrierCode": "",
+	    "emailCarrierCode": "",
+	    "orderType": "",
+	    "reserveNumber": "",
+	    "reserveDeliveryCount": "",
+	    "cautionDisplayType": "",
+	    "rakutenConfirmFlag": "",
+	    "goodsPrice": "",
+	    "goodsTax": "",
+	    "postagePrice": "",
+	    "deliveryPrice": "",
+	    "totalPrice": "",
+	    "requestPrice": "",
+	    "couponAllTotalPrice": "",
+	    "couponShopPrice": "",
+	    "couponOtherPrice": "",
+	    "asurakuFlag": "",
+	    "drugFlag": "",
+	    "dealFlag": "",
+	    "membershipType": "",
+	    "memo": "",
+	    "operator": "",
+	    "mailPlugSentence": "",
+	    "modifyFlag": "",
+	    "isTaxRecalc": "",
+	    "OrdererModel": {
+		"zipCode1": "",
+		"zipCode2": "",
+		"prefecture": "",
+		"city": "",
+		"subAddress": "",
+		"familyName": "",
+		"firstName": "",
+		"familyNameKana": "",
+		"firstNameKana": "",
+		"phoneNumber1": "",
+		"phoneNumber2": "",
+		"phoneNumber3": "",
+		"emailAddress": "",
+		"sex": "",
+		"birthYear": "",
+		"birthMonth": "",
+		"birthDay": ""
+	    },
+	    "SettlementModel": {
+		"settlementMethod": "",
+		"cardName": "",
+		"cardNumber": "",
+		"cardOwner": "",
+		"cardYm": "",
+		"cardPayType": "",
+		"cardInstallmentDesc": ""
+	    },
+	    "DeliveryModel": {
+		"deliveryName": "",
+		"deliveryClass": ""
+	    },
+	    "PointModel": {
+		"usedPoint": 0
+	    },
+	    "WrappingModel1": {
+	    },
+	    "WrappingModel2": null,
+	    "PackageModelList": [
+		{
+		    "basketId": "",
+		    "postagePrice": "",
+		    "deliveryPrice": "",
+		    "goodsTax": "",
+		    "goodsPrice": "",
+		    "totalPrice": "",
+		    "noshi": "",
+		    "packageDeleteFlag": "",
+		    "SenderModel": {
+			"zipCode1": "",
+			"zipCode2": "",
+			"prefecture": "",
+			"city": "",
+			"subAddress": "",
+			"familyName": "",
+			"firstName": "",
+			"familyNameKana": "",
+			"firstNameKana": "",
+			"phoneNumber1": "",
+			"phoneNumber2": "",
+			"phoneNumber3": "",
+			"emailAddress": ""
+		    },
+		    "ItemModelList": [
+			{
+			    "itemDetailId": "",
+			    "itemName": "商品１",
+			    "itemId": "11111",
+			    "itemNumber": "",
+			    "manageNumber": "",
+			    "price": "",
+			    "units": "",
+			    "includedPostage": "",
+			    "includedTaxFlag": "",
+			    "ncludedCashOnDeliveryPostageFlag": "",
+			    "selectedChoice": "",
+			    "pointRate": "",
+			    "inventoryType": "",
+			    "delvdateInfo": "",
+			    "restoreInventoryFlag": "",
+			    "deleteItemFlag": ""
+			}
+		    ],
+		    "ShippingModelList": [
+			{
+			}
+		    ],
+		    "DeliveryCvsModel": null
+		}
+	    ],
+	    "CouponModelList": [
+		{
+		    "couponCode": "1111-2222",
+		    "itemId": "",
+		    "couponName": "test",
+		    "couponSummary": "",
+		    "couponCapital": "",
+		    "expiryDate": "",
+		    "couponPrice": "",
+		    "couponUnit": "",
+		    "couponTotalPrice": ""
+		}
+	    ],
+	    "ChangeReasonModelList": []
+	}
+    ]
+}"""
+
+    httpretty.reset()
+    httpretty.register_uri(httpretty.POST,
+                           'https://api.rms.rakuten.co.jp/es/2.0/order/searchOrder',
+                           body=post_searchOrder_response,
+                           content_type='application/json')
+
+    httpretty.register_uri(httpretty.POST,
+                           'https://api.rms.rakuten.co.jp/es/2.0/order/getOrder',
+                           body=post_getOrder_response,
+                           content_type='application/json')
+
+    result = ol.getOrderRPay(ws, input_dict, conf['api'])
+    if not 'orderSearchModel' in input_dict['getOrderRequestModel']:
+      input_dict['getOrderRequestModel']['orderSearchModel'] = {}
+    input_dict['getOrderRequestModel']['orderSearchModel']['startDate'] = 0
+    input_dict['getOrderRequestModel']['orderSearchModel']['endDate'] = 0
+
+    assert result['errorCode'] == 'N00-000'
+
+    outfile = ol.genFileName('order', 'data')
+    couponfile = ol.genFileName('coupon', 'data')
+    writeCouponHeader = True
+    with io.open(outfile, "w", encoding=conf['api']['output_encoding']) as output_file:
+      coupon_file = io.open(couponfile, "w", encoding=conf['api']['output_encoding'], errors='replace')
+      ret = ol.writeOutput(conf['api'], output_file, output_columns, result, True)
+      cwnum = ol.writeCouponDetail(conf['api'], coupon_file,                                     output_columns, result, writeCouponHeader)
+      #print(ret)
 
   def test_readInput(self):
     ol = OrderList()

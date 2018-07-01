@@ -1,0 +1,342 @@
+#
+#
+[general]
+# 決まった期間を指定する場合は、startDate, endDate を指定して下さい。
+# 優先度は以下の順になります
+#
+# 優先度高                                    優先度低
+# thisMonth > prevMonth > period > startDate - endData
+
+# 期間(数字)
+# 0: 当日の00:00 - 現在日時
+# 1: 前日の00:00 - 現在日時
+# 6: 6日前の00:00 - 現在日時
+# n: n日前の00:00 - 現在日時
+period = 0
+
+# 今月
+# 1: 今月
+thisMonth =
+
+# 先月(1 or 0)
+# 1: 先月
+prevMonth =
+
+# 受注API １回の呼び出しで指定する期間の長さ(sec)
+# * 受注APIの上限を超過しないような長さを指定して下さい
+#
+# 例) period=1, duration=86400 を指定した場合、以下の２回呼び出しを実施します
+#     1. 前日の00:00 - 前日の23:59:59
+#     2. 当日の00:00 - 現在日時
+#
+# 3600:    １時間
+# 7200:    ２時間
+# 43200: １２時間
+# 86400:   １日
+duration = 86400
+
+
+#################################################
+##
+## 検索条件 開始
+##
+[getOrderRequestModel]
+
+# ステータスリスト(eg: 100,200)
+# ステータスリスト(eg: 100,200)
+# 100: 注文確認待ち
+# 200: 楽天処理中
+# 300: 発送待ち
+# 400: 変更確定待ち
+# 500: 発送済
+# 600: 支払手続き中
+# 700: 支払手続き済
+# 800: キャンセル確定待ち
+orderProgressList = 
+
+subStatusidList = 
+
+# 期間検索種別(数字)
+# 1: 注文日
+# 2: 注文確認日
+# 3: 注文確定日
+# 4: 発送日
+# 5: 発送完了報告日
+# 6: 決済確定日
+dateType = 1
+
+# 期間FROM (yyyy-MM-ddTHH:mm:ss+0900   eg: 2017-01-01T01:00:00+0900)
+startDatetime = 
+
+# 期間TO (yyyy-MM-ddTHH:mm:ss+0900   eg: 2017-01-10T23:59:59+0900)
+endDatetime = 
+
+# 販売種別(数字) ※複数指定する場合は、カンマ区切り(例: 1,2)
+# 1: 通常購入
+# 4: 定期購入
+# 5: 頒布会
+# 6: 予約商品
+# 指定無し: 条件無し（すべて）
+orderTypeList = 
+
+# 支払方法名(数字)
+# 1: クレジットカード
+# 2: 代金引換
+# 3: 後払い
+# 4: ショッピングクレジット/ローン
+# 5: オートローン
+# 6: リース
+# 7: 請求書払い
+# 9: 銀行振込
+# 12: Apple Pay
+# 13: セブンイレブン(前払)
+# 14: ローソン、郵便局、ATM等(前払)
+settlementMethod =
+
+# 配送方法
+deliveryName = 
+
+# 発送日未指定有無フラグ
+# 0: 発送日の指定の有無によらず取得
+# 1: 発送日が未指定のものだけ
+shippingDateBlankFlag =
+
+# 発送番号未指定フラグ
+shippingNumberBlankFlag =
+
+# 検索キーワード種別
+# 0: なし
+# 1: 商品名
+# 2: 商品番号
+# 3: ひとことメモ
+# 4: 注文者名
+searchKeywordType =
+
+# 検索キーワード
+searchKeyword =
+
+# 注文メールアドレス種別
+# 0: PC/モバイル
+# 1: PC
+# 2: モバイル
+mailSendType =
+
+# 注文者メールアドレス
+ordererMailAddress =
+
+# 電話番号種別
+# 0: 注文者
+# 1: 送付先
+phoneNumberType =
+
+# 電話番号
+phoneNumber =
+
+# 申込番号
+reserveNumber =
+
+# 購入サイトリスト
+# 0: すべて
+# 1: PCで注文
+# 2: モバイルで注文
+# 3: スマートフォンで注文
+# 4: タブレットで注文
+purchaseSiteType =
+
+# あす楽希望フラグ
+# 0: 希望なし
+# 1: 希望あり
+asurakuFlag =
+
+# クーポン利用有無フラグ
+# 0: 利用なし
+# 1: 利用あり
+couponUseFlag =
+
+# 医薬品受注フラグ
+# 0: 医薬品含まない
+# 1: 医薬品含む
+drugFlag =
+
+# 海外かご注文フラグ
+# 0: 海外かご注文ではない
+# 1: 海外かご注文
+overseasFlag =
+
+
+[getOrderRequestModel.PaginationRequestModel]
+# １ページあたりの取得結果数
+requestRecordsAmount = 1000
+# リクエストページ番号
+requestPage = 1
+
+[getOrderRequestModel.PaginationRequestModel.SortModel]
+# 並び替え項目
+sortColumn = 1
+
+# 並び替え方法
+# 1: 昇順
+# 2: 降順
+sortDirection = 1
+
+##
+## 検索条件 終了
+##
+#################################################
+
+
+
+#################################################
+##
+## 出力情報 開始
+##
+
+[output.OrderModelList]
+orderNumber = 受注番号
+orderProgress = 受注ステータス
+subStatusId = サブステータスID
+subStatusName = サブステータス
+orderDatetime = 注文日時
+shopOrderCfmDatetime = 注文確認日時
+orderFixDatetime = 注文確定日時
+shoppingInstDatetime = 発送指示日時
+shoppingCmplRptDatetime = 発送完了報告日時
+cancelDueDate = キャンセル期限日
+deliveryDate = 配送日
+shippingTerm = 配送時間
+remarks = コメント
+giftCheckFlag = ギフトフラグ
+severalSenderFlag = 複数送付先フラグ
+equalSenderFlag = 送付先一致フラグ
+isolatedIslandFlag = 離島フラグ
+rakutenMemberFlag = 楽天会員フラグ
+carrierCode = 利用端末
+emailCarrierCode = メールキャリアコード
+orderType = 注文種別
+reserveNumber = 申込み番号
+reserveDeliveryCount = 申し込みお届け回数
+cautionDisplayType = 警告表示タイプ
+rakutenConfirmFlag = 楽天確認中フラグ
+postagePrice = 送料合計
+deliveryPrice = 代引料合計
+totalPrice = 合計金額
+requestPrice = 請求金額
+# couponAllTotalPrice = クーポン利用総額
+# couponShopPrice = 店舗発行クーポン利用額
+# couponOtherPrice = 楽天発行クーポン利用額
+# asurakuFlg = あす楽希望フラグ
+# drugFlag = 医薬品受注フラグ
+dealFlag = 楽天スーパーDEALフラグ
+membershipType =  メンバーシップフラグ
+memo = ひとことメモ
+operator = 担当者
+# mailPlugSentence = メール差込文(お客様へのメッセージ)
+# modifyFlag = 購入履歴修正アイコンフラグ
+# isTaxRecalc = 消費税再計算フラグ
+
+
+[output.OrderModelList.OrdererModel]
+# zipCode1 = 注文者:郵便番号1
+# zipCode2 = 注文者:郵便番号2
+# prefecture = 注文者:都道府県
+# city = 注文者:市区町村
+# subAddress = 注文者:それ以降の住所
+# familyName = 注文者:姓漢字
+firstName = 注文者:名漢字
+# familyNameKana = 注文者:姓カナ
+# firstNameKana = 注文者:名カナ
+# phoneNumber1 = 注文者:電話番号1
+# phoneNumber2 = 注文者:電話番号2
+# phoneNumber3 = 注文者:電話番号3
+# emailAddress = 注文者:メールアドレス
+# sex = 注文者:性別
+# birthYear = 注文者:誕生日(年)
+# birthMonth = 注文者:誕生日(月)
+# birthDay = 注文者:誕生日(日)
+[output.OrderModelList.SettlementModel]
+settlementMethod = 支払い方法名
+cardName = カード種類
+cardNumber = カード番号
+cardOwner = 名義人
+cardYm = 有効期限
+cardPayType = 分割選択(支払種別)
+cardInstallmentDesc = 分割備考
+[output.OrderModelList.DeliveryModel]
+# deliveryName = 配送方法名
+# deliveryClass = 配送区分
+[output.OrderModelList.PointModel]
+# usedPoint = 充当ポイント
+[output.OrderModelList.WrappingModel1]
+# title = 1:ラッピングタイトル
+# name = 1:ラッピング名
+# price = 1:料金
+# includeTaxFlag = 1:税込別
+# deleteWrappingFlag = 1:ラッピング削除フラグ
+[output.OrderModelList.WrappingModel2]
+# title = 2:ラッピングタイトル
+# name = 2:ラッピング名
+# price = 2:料金
+# includeTaxFlag = 2:税込別
+# deleteWrappingFlag = 2:ラッピング削除フラグ
+[output.OrderModelList.PackageModelList]
+# basketId = 送付先キー
+# postagePrice = 送料
+# deliveryPrice = 代引料合計
+# goodsTax = 消費税合計
+# goodsPrice = 商品合計金額
+# totalPrice = 合計金額
+# noshi = のし
+# packageDeleteFlag = 削除フラグ
+[output.OrderModelList.PackageModelList.SenderModel]
+# zipCode1 = 注文者:郵便番号1
+# zipCode2 = 注文者:郵便番号2
+# prefecture = 注文者:都道府県
+# city = 注文者:市区町村
+# subAddress = 注文者:それ以降の住所
+# familyName = 注文者:姓漢字
+firstName = 注文者:名漢字
+# familyNameKana = 注文者:姓カナ
+# firstNameKana = 注文者:名カナ
+# phoneNumber1 = 注文者:電話番号1
+# phoneNumber2 = 注文者:電話番号2
+# phoneNumber3 = 注文者:電話番号3
+[output.OrderModelList.PackageModelList.ItemModelList]
+itemDetailId = 商品明細ID
+itemName = 商品名
+itemId = 商品ID
+itemNumber = 商品番号
+manageNumber = 商品管理番号
+price = 単価
+units = 個数
+# includedPostageFlag = 送料込別
+# includedTaxFlag = 税込別
+# includedCashOnDeliveryPostageFlag = 代引手数料込別
+selectedChoice = 項目・選択肢
+# pointRate = ポイントレート
+# inventoryType = 在庫タイプ
+delvdateInfo = 納期情報
+# restoreInventoryFlag = 在庫連動オプション
+# deleteItemFlg = 商品削除フラグ
+[output.OrderModelList.PackageModelList.ShippingModelList]
+# shippingDetailId = 
+# deliveryCompanyName =
+# shippingDate = 
+[output.OrderModelList.PackageModelList.DeliveryCvsModel]
+# cvsCode = コンビニコード
+[output.OrderModelList.CouponModelList]
+couponCode = クーポンコード
+itemId = クーポン:商品ID
+couponName = クーポン名
+couponSummary = クーポン効果(サマリー)
+couponUnit = クーポン利用数
+couponCapital = クーポ原資資コード
+couponPrice = クーポン割引単価
+expiryDate = 有効期限
+couponTotalPrice =  クーポン利用金額
+
+
+
+##
+## 出力情報 終了
+##
+#################################################
