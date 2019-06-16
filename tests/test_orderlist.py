@@ -143,6 +143,7 @@ class TestOrderList(unittest.TestCase):
     conf['api']['secretService'] = 'BBB'
     conf['api']['shopUrl'] = 'testshop_666'
     conf['api']['RPay'] = '1'
+    conf['api']['getOrderVersion'] = '3'
     ws = ol.getRmsService(conf['api'])
     (input_dict, output_columns, general_conf) = ol.readInput(conf, 'tests/input_test1_rpay.conf')
     start = input_dict['getOrderRequestModel']['orderSearchModel']['startDate']

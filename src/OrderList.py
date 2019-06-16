@@ -37,6 +37,7 @@ GENERAL_PERIOD_KEY = 'period'
 GENERAL_DURATION_1CALL_KEY = 'duration'
 GENERAL_THIS_MONTH_KEY = 'thisMonth'
 GENERAL_PREV_MONTH_KEY = 'prevMonth'
+GENERAL_GET_ORDER_VERSION_KEY = 'getOrderVersion'
 GET_ORDER_COUNT_LIMIT = 100
 
 class OrderList:
@@ -126,6 +127,7 @@ class OrderList:
     self.defaultConfigPart(a, 'parse_format_datetime', '%%Y-%%m-%%dT%%H:%%M:%%S%%z')
     self.defaultConfigPart(a, 'datetime_format', '{0:%%Y/%%m/%%d %%H:%%M:%%S}')
     self.defaultConfigPart(a, 'RPay', '0')
+    self.defaultConfigPart(a, 'getOrderVersion', '1')
   
   
   prev_apicall = None
@@ -222,6 +224,8 @@ class OrderList:
         index += len(targetList)
 
         args = {"orderNumberList": targetList}
+        if GENERAL_GET_ORDER_VERSION_KEY in conf:
+          args["version"] = conf[GENERAL_GET_ORDER_VERSION_KEY]
         self.prev_apicall = self.waitSec(self.prev_apicall, wait_sec)
         ret2 = ws.rms.rpay.get_order(**args)
         logger.debug('get_order result: {}'.format(vars(ret2)))
