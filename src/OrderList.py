@@ -80,6 +80,9 @@ class OrderList:
     argparser.add_argument('-p', '--coupon',
                            action='store_true',
                            help='coupon detail')
+    argparser.add_argument('-s', '--shipping-detail',
+                           action='store_true',
+                           help='shipping detail')
     argparser.add_argument('-d', '--dry-run',
                            action='store_true',
                            help='dry run')
@@ -148,7 +151,7 @@ class OrderList:
   def getRmsService(self, conf):
     credentials = {
       'license_key': conf['licenseKey'],
-      'secret_service': conf['secretService'],
+      'secret_service': conf.get('serviceSecret') or conf.get('secretService'),
       'shop_url': conf['shopUrl'],
     }
     ws = RakutenWebService(**credentials)
@@ -294,7 +297,7 @@ class OrderList:
               new_dict[key] = [int(i) for i in s]
             elif key in date_keys:
               parse_format = config['api']['parse_format']
-              new_dict[key] = datetime.strptime(val, parse_format).replace(tzinfo=JST)
+              new_dict[key] = JST.localize(datetime.strptime(val, parse_format))
             elif key in datetime_keys:
               parse_format = config['api']['parse_format_datetime']
               new_dict[key] = datetime.strptime(val, parse_format)
@@ -326,19 +329,19 @@ class OrderList:
       if GENERAL_PERIOD_KEY in condition[GENERAL_SECTION_KEY]:
         period = condition[GENERAL_SECTION_KEY][GENERAL_PERIOD_KEY]
         if len(period):
-          toDate = datetime.now().replace(tzinfo=JST)
+          toDate = JST.localize(datetime.now())
           fd = toDate - timedelta(days=int(period))
-          fromDate = datetime(fd.year, fd.month, fd.day).replace(tzinfo=JST)
+          fromDate = JST.localize(datetime(fd.year, fd.month, fd.day))
           logger.debug('{} - {}'.format(fromDate, toDate))
           new_hash[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_START_DATE_KEY] = fromDate
           new_hash[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_END_DATE_KEY] = toDate
 
         prevMonth = condition[GENERAL_SECTION_KEY][GENERAL_PREV_MONTH_KEY]
         if prevMonth == "1":
-          now = datetime.now().replace(tzinfo=JST)
+          now = JST.localize(datetime.now())
           fd = self.add_months(now, -1)
-          fromDate = datetime(fd.year, fd.month, 1).replace(tzinfo=JST)
-          toDateTmp = datetime(now.year, now.month, 1, 23, 59, 59).replace(tzinfo=JST)
+          fromDate = JST.localize(datetime(fd.year, fd.month, 1))
+          toDateTmp = JST.localize(datetime(now.year, now.month, 1, 23, 59, 59))
           toDate = toDateTmp - timedelta(days=1)
           logger.debug('{} - {}'.format(fromDate, toDate))
           new_hash[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_START_DATE_KEY] = fromDate
@@ -346,8 +349,8 @@ class OrderList:
 
         thisMonth = condition[GENERAL_SECTION_KEY][GENERAL_THIS_MONTH_KEY]
         if thisMonth == "1":
-          toDate = datetime.now().replace(tzinfo=JST)
-          fromDate = datetime(toDate.year, toDate.month, 1).replace(tzinfo=JST)
+          toDate = JST.localize(datetime.now())
+          fromDate = JST.localize(datetime(toDate.year, toDate.month, 1))
           logger.debug('{} - {}'.format(fromDate, toDate))
           new_hash[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_START_DATE_KEY] = fromDate
           new_hash[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY][ORDER_SEARCH_END_DATE_KEY] = toDate
@@ -549,6 +552,72 @@ class OrderList:
           linum += 1
     return linum
 
+  def extendShippingDetail(self, orderModel):
+    '''
+    orderModel[]
+      shippingModel[]
+    '''
+
+    extendedShippingModel = []
+    order_dict = self.grabChildren(orderModel)
+    key1 = 'packageModel' if 'packageModel' in orderModel else 'PackageModelList'
+    for packageModel in orderModel[key1]:
+      prefix = key1+'.'
+      logger.debug('{}'.format(packageModel))
+      pkg_dict = self.grabChildren(packageModel, prefix)
+      key2 = 'ShippingModelList'
+      if packageModel.get(key2) is not None:
+        for packageModel in packageModel[key2]:
+          prefix = key1+'.'+key2+'.'
+          logger.debug('{}'.format(packageModel))
+          item_dict = self.grabChildren(packageModel, prefix)
+          new_dict = copy.copy(order_dict)
+          new_dict.update(pkg_dict)
+          new_dict.update(item_dict)
+          extendedShippingModel.append(new_dict)
+    return extendedShippingModel
+
+  def writeShippingDetail(self, conf, output_file, output_columns, result, writeHeader):
+    if not output_file: return 0
+
+    logger.debug("writeShippingDetail: rows={}".format(len(result)))
+    csv_writer = csv.writer(
+      output_file,
+      #sys.stdout,
+      dialect='excel',
+      lineterminator='\n',
+      delimiter=conf['output_delimiter'],
+      quotechar=conf['output_quotechar'],
+      quoting=csv.QUOTE_ALL,
+    )
+    datetime_format = conf['datetime_format']
+    headers = []
+    listOrderModel = result['orderModel']
+    linum = 0
+    for (index, orderModelObj) in enumerate(listOrderModel):
+      logger.debug('{}: {}'.format(index, orderModelObj))
+      orderModel = zeep.helpers.serialize_object(orderModelObj)
+      if isinstance(orderModel, dict):
+        extendedShippingModel = self.extendShippingDetail(orderModel)
+        for eo in extendedShippingModel:
+          cols = []
+          for (oc, col) in output_columns.items():
+            if oc.find('ShippingModelList') >= 0 or oc.find('orderNumber') >= 0 or oc.find('basketId') >= 0:
+              if linum == 0: headers.append(col)
+              v = ""
+              if oc in eo:
+                if isinstance(eo[oc], datetime):
+                  v = datetime_format.format(eo[oc])
+                else:
+                  v = eo[oc]
+              cols.append(v)
+            else:
+              continue
+          if linum == 0 and writeHeader: csv_writer.writerow(headers)
+          csv_writer.writerow(cols)
+          linum += 1
+    return linum
+
   def main(self):
     ol = OrderList()
     try:
@@ -603,12 +672,18 @@ class OrderList:
       index = 0
       outfile = self.genFileName('order', outDir)
       couponfile = self.genFileName('coupon', outDir)
+      shippingfile = self.genFileName('shipping', outDir)
       coupon = args.coupon
       coupon_file = None
+      shipping = args.shipping_detail
+      shipping_file = None
       writeCouponHeader = True
+      writeShippingHeader = True
       with io.open(outfile, "w", encoding=config['api']['output_encoding'], errors='replace') as output_file:
         if coupon:
           coupon_file = io.open(couponfile, "w", encoding=config['api']['output_encoding'], errors='replace')
+        if shipping:
+          shipping_file = io.open(shippingfile, "w", encoding=config['api']['output_encoding'], errors='replace')
         for dt in datetimeList:
           if not GET_ORDER_SEARCH_ROOT_KEY in input_dict[GET_ORDER_ROOT_KEY]:
             input_dict[GET_ORDER_ROOT_KEY][GET_ORDER_SEARCH_ROOT_KEY] = {}
@@ -653,6 +728,11 @@ class OrderList:
                                          output_columns, result, writeCouponHeader)
           if cwnum > 0:
             writeCouponHeader = False
+
+          cwnum = self.writeShippingDetail(config['api'], shipping_file,
+                                         output_columns, result, writeShippingHeader)
+          if cwnum > 0:
+            writeShippingHeader = False
           index += 1
   
     except Exception as e:

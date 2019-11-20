@@ -77,7 +77,7 @@ class TestOrderList(unittest.TestCase):
     conf = ol.emptyConfig()
     ol.defaultConfig(conf)
     conf['api']['licenseKey'] = 'AAA'
-    conf['api']['secretService'] = 'BBB'
+    conf['api']['serviceSecret'] = 'BBB'
     conf['api']['shopUrl'] = 'testshop_666'
     conf['api']['RPay'] = '1'
     ws = ol.getRmsService(conf['api'])
@@ -268,7 +268,7 @@ class TestOrderList(unittest.TestCase):
 	    "WrappingModel2": null,
 	    "PackageModelList": [
 		{
-		    "basketId": "",
+		    "basketId": 6001,
 		    "postagePrice": "",
 		    "deliveryPrice": "",
 		    "goodsTax": "",
@@ -336,7 +336,7 @@ class TestOrderList(unittest.TestCase):
 		    "DeliveryCvsModel": null
 		},
 		{
-		    "basketId": "",
+		    "basketId": 6002,
 		    "postagePrice": "",
 		    "deliveryPrice": "",
 		    "goodsTax": "",
@@ -399,6 +399,11 @@ class TestOrderList(unittest.TestCase):
 		    ],
 		    "ShippingModelList": [
 			{
+                            "shippingDetailId": 14400,
+                            "shippingNumber": "999",
+                            "deliveryCompany": "1005",
+                            "deliveryCompanyName": "ヤマト",
+                            "shippingDate": null
 			}
 		    ],
 		    "DeliveryCvsModel": null
@@ -503,7 +508,7 @@ class TestOrderList(unittest.TestCase):
 	    "WrappingModel2": null,
 	    "PackageModelList": [
 		{
-		    "basketId": "",
+		    "basketId": 6003,
 		    "postagePrice": "",
 		    "deliveryPrice": "",
 		    "goodsTax": "",
@@ -548,6 +553,11 @@ class TestOrderList(unittest.TestCase):
 		    ],
 		    "ShippingModelList": [
 			{
+                            "shippingDetailId": 14401,
+                            "shippingNumber": "xxxx",
+                            "deliveryCompany": "1005",
+                            "deliveryCompanyName": "西武運輸",
+                            "shippingDate": null
 			}
 		    ],
 		    "DeliveryCvsModel": null
@@ -592,11 +602,21 @@ class TestOrderList(unittest.TestCase):
 
     outfile = ol.genFileName('order', 'data')
     couponfile = ol.genFileName('coupon', 'data')
+    shippingfile = ol.genFileName('shipping', 'data')
     writeCouponHeader = True
     with io.open(outfile, "w", encoding=conf['api']['output_encoding']) as output_file:
-      coupon_file = io.open(couponfile, "w", encoding=conf['api']['output_encoding'], errors='replace')
+      coupon_file = io.open(couponfile, "w", 
+                            encoding=conf['api']['output_encoding'], 
+                            errors='replace')
       ret = ol.writeOutput(conf['api'], output_file, output_columns, result, True)
-      cwnum = ol.writeCouponDetail(conf['api'], coupon_file,                                     output_columns, result, writeCouponHeader)
+      cwnum = ol.writeCouponDetail(conf['api'], coupon_file,
+                                   output_columns, result, writeCouponHeader)
+
+      shipping_file = io.open(shippingfile, "w", 
+                              encoding=conf['api']['output_encoding'], 
+                              errors='replace')
+      cwnum = ol.writeShippingDetail(conf['api'], shipping_file,
+                                     output_columns, result, True)
       #print(ret)
 
   def test_readInput(self):
