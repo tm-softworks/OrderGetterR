@@ -1,0 +1,419 @@
+{
+  "MessageModelList": [
+    {
+	    "messageType": "INFO",
+	    "messageCode": "ORDER_EXT_API_GET_ORDER_INFO_101",
+	    "message": "受注情報取得に成功しました。(取得件数2件)"
+    }
+  ],
+  "OrderModelList": [
+    {
+	    "orderNumber": "234323-20180101-10101004",
+	    "orderProgress": 300,
+	    "subStatusId": null,
+	    "subStatusName": null,
+	    "orderDatetime": "",
+	    "shopOrderCfmDatetime": "",
+	    "orderFixDatetime": "",
+	    "shippingInstDatetime": "",
+	    "shippingCmplRptDatetime": "",
+	    "cancelDueDate": "",
+	    "deliveryDate": "",
+	    "shippingTerm": "",
+	    "remarks": "",
+	    "giftCheckFlag": "",
+	    "severalSenderFlag": "",
+	    "equalSenderFlag": "",
+	    "isolatedIslandFlag": "",
+	    "rakutenMemberFlag": "",
+	    "carrierCode": "",
+	    "emailCarrierCode": "",
+	    "orderType": "",
+	    "reserveNumber": "",
+	    "reserveDeliveryCount": "",
+	    "cautionDisplayType": "",
+	    "rakutenConfirmFlag": "",
+	    "goodsPrice": "",
+	    "goodsTax": "",
+	    "postagePrice": "",
+	    "deliveryPrice": "",
+	    "totalPrice": "",
+	    "requestPrice": "",
+	    "couponAllTotalPrice": "",
+	    "couponShopPrice": "",
+	    "couponOtherPrice": "",
+	    "asurakuFlag": "",
+	    "drugFlag": "",
+	    "dealFlag": "",
+	    "membershipType": "",
+	    "memo": "",
+	    "operator": "",
+	    "mailPlugSentence": "",
+	    "modifyFlag": "",
+	    "isTaxRecalc": "",
+	    "OrderModel": {
+	      "zipCode1": "",
+	      "zipCode2": "",
+	      "prefecture": "",
+	      "city": "",
+	      "subAddress": "",
+	      "familyName": "",
+	      "firstName": "",
+	      "familyNameKana": "",
+	      "firstNameKana": "",
+	      "phoneNumber1": "",
+	      "phoneNumber2": "",
+	      "phoneNumber3": "",
+	      "emailAddress": "",
+	      "sex": "",
+	      "birthYear": "",
+	      "birthMonth": "",
+	      "birthDay": ""
+	    },
+	    "SettlementModel": {
+	      "settlementMethod": "",
+	      "cardName": "",
+	      "cardNumber": "",
+	      "cardOwner": "",
+	      "cardYm": "",
+	      "cardPayType": "",
+	      "cardInstallmentDesc": ""
+	    },
+	    "DeliveryModel": {
+	      "deliveryName": "",
+	      "deliveryClass": ""
+	    },
+	    "PointModel": {
+	      "usedPoint": 0
+	    },
+	    "WrappingModel1": {
+	    },
+	    "WrappingModel2": null,
+	    "PackageModelList": [
+	      {
+	        "basketId": 6001,
+	        "postagePrice": "",
+	        "deliveryPrice": "",
+	        "goodsTax": "",
+	        "goodsPrice": "",
+	        "totalPrice": "",
+	        "noshi": "",
+	        "packageDeleteFlag": "",
+	        "SenderModel": {
+	          "zipCode1": "123",
+	          "zipCode2": "789",
+	          "prefecture": "",
+	          "city": "",
+	          "subAddress": "",
+	          "familyName": "",
+	          "firstName": "",
+	          "familyNameKana": "",
+	          "firstNameKana": "",
+	          "phoneNumber1": "",
+	          "phoneNumber2": "",
+	          "phoneNumber3": "",
+	          "emailAddress": ""
+	        },
+	        "ItemModelList": [
+	          {
+		          "itemDetailId": "",
+		          "itemName": "商品１",
+		          "itemId": "",
+		          "itemNumber": "",
+		          "manageNumber": "",
+		          "price": "",
+		          "units": "",
+		          "includedPostage": "",
+		          "includedTaxFlag": "",
+		          "ncludedCashOnDeliveryPostageFlag": "",
+		          "selectedChoice": "",
+		          "pointRate": "",
+		          "inventoryType": "",
+		          "delvdateInfo": "",
+		          "restoreInventoryFlag": "",
+		          "deleteItemFlag": "",
+              "SkuModelList": [
+                {
+                  "variantId": "201",
+                  "merchantDefinedSkuId": "horizontalvertical",
+                  "skuInfo": "size:S\\ncolor:Red"
+                }
+              ]
+	          },
+	          {
+		          "itemDetailId": "",
+		          "itemName": "商品２",
+		          "itemId": "",
+		          "itemNumber": "",
+		          "manageNumber": "",
+		          "price": "",
+		          "units": "",
+		          "includedPostage": "",
+		          "includedTaxFlag": "",
+		          "ncludedCashOnDeliveryPostageFlag": "",
+		          "selectedChoice": "",
+		          "pointRate": "",
+		          "inventoryType": "",
+		          "delvdateInfo": "",
+		          "restoreInventoryFlag": "",
+		          "deleteItemFlag": "",
+              "SkuModelList": [
+                {
+                  "variantId": "202",
+                  "merchantDefinedSkuId": "horizontalvertical",
+                  "skuInfo": "size:S\\ncolor:Blue"
+                }
+              ]
+	          }
+	        ],
+	        "ShippingModelList": [
+	          {
+	          }
+	        ],
+	        "DeliveryCvsModel": null
+	      },
+	      {
+	        "basketId": 6002,
+	        "postagePrice": "",
+	        "deliveryPrice": "",
+	        "goodsTax": "",
+	        "goodsPrice": "",
+	        "totalPrice": "",
+	        "noshi": "",
+	        "packageDeleteFlag": "",
+	        "SenderModel": {
+	          "zipCode1": "123",
+	          "zipCode2": "456",
+	          "prefecture": "",
+	          "city": "",
+	          "subAddress": "",
+	          "familyName": "",
+	          "firstName": "",
+	          "familyNameKana": "",
+	          "firstNameKana": "",
+	          "phoneNumber1": "",
+	          "phoneNumber2": "",
+	          "phoneNumber3": "",
+	          "emailAddress": ""
+	        },
+	        "ItemModelList": [
+	          {
+		          "itemDetailId": "",
+		          "itemName": "商品３",
+		          "itemId": "",
+		          "itemNumber": "",
+		          "manageNumber": "",
+		          "price": "",
+		          "units": "",
+		          "includedPostage": "",
+		          "includedTaxFlag": "",
+		          "ncludedCashOnDeliveryPostageFlag": "",
+		          "selectedChoice": "",
+		          "pointRate": "",
+		          "inventoryType": "",
+		          "delvdateInfo": "",
+		          "restoreInventoryFlag": "",
+		          "deleteItemFlag": ""
+	          },
+	          {
+		          "itemDetailId": "",
+		          "itemName": "商品４",
+		          "itemId": "",
+		          "itemNumber": "",
+		          "manageNumber": "",
+		          "price": "",
+		          "units": "",
+		          "includedPostage": "",
+		          "includedTaxFlag": "",
+		          "ncludedCashOnDeliveryPostageFlag": "",
+		          "selectedChoice": "",
+		          "pointRate": "",
+		          "inventoryType": "",
+		          "delvdateInfo": "",
+		          "restoreInventoryFlag": "",
+		          "deleteItemFlag": ""
+	          }
+	        ],
+	        "ShippingModelList": [
+	          {
+              "shippingDetailId": 14400,
+              "shippingNumber": "999",
+              "deliveryCompany": "1005",
+              "deliveryCompanyName": "ヤマト",
+              "shippingDate": null
+	          }
+	        ],
+	        "DeliveryCvsModel": null
+	      }
+	    ],
+	    "CouponModelList": [
+	      {
+	        "couponCode": "",
+	        "itemId": "",
+	        "couponName": "test2",
+	        "couponSummary": "",
+	        "couponCapital": "",
+	        "expiryDate": "",
+	        "couponPrice": "",
+	        "couponUnit": "",
+	        "couponTotalPrice": ""
+	      }
+	    ],
+	    "ChangeReasonModelList": []
+    },
+    {
+	    "orderNumber": "234323-20180101-10101005",
+	    "orderProgress": 301,
+	    "subStatusId": null,
+	    "subStatusName": null,
+	    "orderDatetime": "",
+	    "shopOrderCfmDatetime": "",
+	    "orderFixDatetime": "",
+	    "shippingInstDatetime": "",
+	    "shippingCmplRptDatetime": "",
+	    "cancelDueDate": "",
+	    "deliveryDate": "",
+	    "shippingTerm": "",
+	    "remarks": "",
+	    "giftCheckFlag": "",
+	    "severalSenderFlag": "",
+	    "equalSenderFlag": "",
+	    "isolatedIslandFlag": "",
+	    "rakutenMemberFlag": "",
+	    "carrierCode": "",
+	    "emailCarrierCode": "",
+	    "orderType": "",
+	    "reserveNumber": "",
+	    "reserveDeliveryCount": "",
+	    "cautionDisplayType": "",
+	    "rakutenConfirmFlag": "",
+	    "goodsPrice": "",
+	    "goodsTax": "",
+	    "postagePrice": "",
+	    "deliveryPrice": "",
+	    "totalPrice": "",
+	    "requestPrice": "",
+	    "couponAllTotalPrice": "",
+	    "couponShopPrice": "",
+	    "couponOtherPrice": "",
+	    "asurakuFlag": "",
+	    "drugFlag": "",
+	    "dealFlag": "",
+	    "membershipType": "",
+	    "memo": "",
+	    "operator": "",
+	    "mailPlugSentence": "",
+	    "modifyFlag": "",
+	    "isTaxRecalc": "",
+	    "OrdererModel": {
+	      "zipCode1": "",
+	      "zipCode2": "",
+	      "prefecture": "",
+	      "city": "",
+	      "subAddress": "",
+	      "familyName": "",
+	      "firstName": "",
+	      "familyNameKana": "",
+	      "firstNameKana": "",
+	      "phoneNumber1": "",
+	      "phoneNumber2": "",
+	      "phoneNumber3": "",
+	      "emailAddress": "",
+	      "sex": "",
+	      "birthYear": "",
+	      "birthMonth": "",
+	      "birthDay": ""
+	    },
+	    "SettlementModel": {
+	      "settlementMethod": "",
+	      "cardName": "",
+	      "cardNumber": "",
+	      "cardOwner": "",
+	      "cardYm": "",
+	      "cardPayType": "",
+	      "cardInstallmentDesc": ""
+	    },
+	    "DeliveryModel": {
+	      "deliveryName": "",
+	      "deliveryClass": ""
+	    },
+	    "PointModel": {
+	      "usedPoint": 0
+	    },
+	    "WrappingModel1": {
+	    },
+	    "WrappingModel2": null,
+	    "PackageModelList": [
+	      {
+	        "basketId": 6003,
+	        "postagePrice": "",
+	        "deliveryPrice": "",
+	        "goodsTax": "",
+	        "goodsPrice": "",
+	        "totalPrice": "",
+	        "noshi": "",
+	        "packageDeleteFlag": "",
+	        "SenderModel": {
+	          "zipCode1": "",
+	          "zipCode2": "",
+	          "prefecture": "",
+	          "city": "",
+	          "subAddress": "",
+	          "familyName": "",
+	          "firstName": "",
+	          "familyNameKana": "",
+	          "firstNameKana": "",
+	          "phoneNumber1": "",
+	          "phoneNumber2": "",
+	          "phoneNumber3": "",
+	          "emailAddress": ""
+	        },
+	        "ItemModelList": [
+	          {
+		          "itemDetailId": "",
+		          "itemName": "商品１",
+		          "itemId": "11111",
+		          "itemNumber": "",
+		          "manageNumber": "",
+		          "price": "",
+		          "units": "",
+		          "includedPostage": "",
+		          "includedTaxFlag": "",
+		          "ncludedCashOnDeliveryPostageFlag": "",
+		          "selectedChoice": "",
+		          "pointRate": "",
+		          "inventoryType": "",
+		          "delvdateInfo": "",
+		          "restoreInventoryFlag": "",
+		          "deleteItemFlag": ""
+	          }
+	        ],
+	        "ShippingModelList": [
+	          {
+              "shippingDetailId": 14401,
+              "shippingNumber": "xxxx",
+              "deliveryCompany": "1005",
+              "deliveryCompanyName": "西武運輸",
+              "shippingDate": null
+	          }
+	        ],
+	        "DeliveryCvsModel": null
+	      }
+	    ],
+	    "CouponModelList": [
+	      {
+	        "couponCode": "1111-2222",
+	        "itemId": "",
+	        "couponName": "test",
+	        "couponSummary": "",
+	        "couponCapital": "",
+	        "expiryDate": "",
+	        "couponPrice": "",
+	        "couponUnit": "",
+	        "couponTotalPrice": ""
+	      }
+	    ],
+	    "ChangeReasonModelList": []
+    }
+  ]
+}

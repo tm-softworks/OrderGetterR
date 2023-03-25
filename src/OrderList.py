@@ -444,6 +444,14 @@ class OrderList:
         new_dict = copy.copy(order_dict)
         new_dict.update(pkg_dict)
         new_dict.update(item_dict)
+
+        key3 = 'skuModel' if 'skuModel' in itemModel else 'SkuModelList'
+        if itemModel.get(key3) is not None:
+          for skuModel in itemModel[key3]:
+            prefix = key1+'.'+key2+'.'+key3+'.'
+            sku_dict = self.grabChildren(skuModel, prefix)
+            new_dict.update(sku_dict)
+
         extendedOrderModel.append(new_dict)
   
     return extendedOrderModel

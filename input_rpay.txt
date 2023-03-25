@@ -317,6 +317,12 @@ selectedChoice = 項目・選択肢
 delvdateInfo = 納期情報
 # restoreInventoryFlag = 在庫連動オプション
 # deleteItemFlg = 商品削除フラグ
+
+[output.OrderModelList.PackageModelList.ItemModelList.SkuModelList]
+variantId = バリエーションID
+merchantDefinedSkuId = SKU-ID
+skuInfo = SKU情報
+
 [output.OrderModelList.PackageModelList.ShippingModelList]
 # shippingDetailId = 
 # deliveryCompanyName =
