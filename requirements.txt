@@ -1,3 +1,4 @@
 zeep==1.1.0
-pytz==2016.10
-git+https://github.com/tm-softworks/rakuten-ws@rpay
+pytz==2018.9
+git+https://github.com/tm-softworks/rakuten-ws@python3.10
+git+https://github.com/gruns/orderedmultidict
