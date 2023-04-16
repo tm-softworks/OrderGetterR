@@ -2,6 +2,10 @@
 
 RMSの受注APIを利用し受注情報の一覧をCSVファイルに出力するツールです。
 
+### Manual
+
+https://product.tm-softworks.net/OrderGetterR/
+
 ### Prerequisites
 
 What things you need to install the software and how to install them
@@ -27,10 +31,10 @@ $ py.test tests/test_orderlist.py
 ## Dependencies
 
 * Python Rakuten Web Service (version: 0.4.3)  
-https://github.com/tm-softworks/rakuten-ws/tree/rpay
+https://github.com/tm-softworks/rakuten-ws/tree/python3.10
 
 
-* pytz - World Timezone Definitions for Python (2016.10)  
+* pytz - World Timezone Definitions for Python (2018.9)  
 https://github.com/newvem/pytz
 
 * Zeep: Python SOAP client (version: 1.1.0)  
